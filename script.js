@@ -1,298 +1,344 @@
 
-const userInput = document.getElementById("userInput");
+const input = document.getElementById("userInput");
 const messages = document.getElementById("messages");
+const welcome = document.getElementById("welcome");
 
-function showSection(section) {
-    document.querySelectorAll(".section").forEach(item => {
-        item.classList.remove("active");
-    });
+// Agent memory
+let tasks = [];
+let notes = [];
 
-    document.getElementById(section).classList.add("active");
+// Main agent function
+function runAgent() {
 
-    const titles = {
-        chat: "AI Chat",
-        agents: "AI Agents",
-        tasks: "Task Manager",
-        research: "Research Assistant",
-        files: "File Assistant",
-        automation: "Automation Center"
-    };
+    const userGoal = input.value.trim();
 
-    document.getElementById("pageTitle").textContent = titles[section];
-}
+    if (!userGoal) return;
 
-function addMessage(text, type) {
-    const message = document.createElement("div");
-    message.className = "message " + type;
-    message.textContent = text;
+    welcome.style.display = "none";
 
-    messages.appendChild(message);
-    messages.scrollTop = messages.scrollHeight;
-}
+    addMessage(userGoal, "user");
 
-function suggest(text) {
-    showSection("chat");
-    userInput.value = text;
-    sendMessage();
-}
+    input.value = "";
 
-function newChat() {
-    messages.innerHTML = "";
-    document.getElementById("welcome").style.display = "block";
-    showSection("chat");
-}
+    // Step 1: Understand the goal
+    const goal = userGoal.toLowerCase();
 
-function detectAgent(text) {
-    const input = text.toLowerCase();
+    // Step 2: Create a plan
+    const plan = createPlan(goal);
 
-    if (/research|search|find|information/.test(input)) {
-        return "Research Agent";
-    }
+    // Show agent activity
+    const activity = document.createElement("div");
+    activity.className = "message";
 
-    if (/plan|schedule|organize|trip/.test(input)) {
-        return "Planning Agent";
-    }
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = "✦";
 
-    if (/task|project|steps|goal|website/.test(input)) {
-        return "Task Agent";
-    }
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
 
-    return "Analysis Agent";
-}
+    const activityBox = document.createElement("div");
+    activityBox.className = "agent-steps";
+    activityBox.textContent =
+        "1. Understanding your goal...\n" +
+        "2. Selecting the right tool...\n" +
+        "3. Executing the task...\n" +
+        "4. Checking the result...";
 
-function generateResponse(text) {
-    const input = text.toLowerCase();
+    bubble.textContent = "Agent is working...";
+    bubble.appendChild(activityBox);
 
-    if (/hello|hi\b|hey/.test(input)) {
-        return "Hello! Welcome to NEXA AI. How can I help you today?";
-    }
+    activity.appendChild(avatar);
+    activity.appendChild(bubble);
 
-    if (/who are you|what can you do/.test(input)) {
-        return "I am NEXA AI, your agentic assistant. I can help with research, planning, task management, file previews and workflow demonstrations.";
-    }
+    messages.appendChild(activity);
 
-    if (/research|search|find|information/.test(input)) {
-        return `🔎 RESEARCH AGENT
-
-I will organize your research into these steps:
-
-1. Understand the research topic.
-2. Identify important questions.
-3. Find relevant information from reliable sources.
-4. Compare findings.
-5. Prepare a summary.
-
-Note: Live web searching is not connected in this prototype.`;
-    }
-
-    if (/plan|schedule|organize|trip/.test(input)) {
-        return `📅 PLANNING AGENT
-
-Here is your suggested plan:
-
-1. Identify your main goal.
-2. List important activities.
-3. Set priorities.
-4. Assign time slots.
-5. Review your progress.
-
-Your plan is ready for customization!`;
-    }
-
-    if (/task|project|steps|goal|website/.test(input)) {
-        return `⚙️ TASK AGENT
-
-I have prepared these project steps:
-
-1. Define project requirements.
-2. Create the HTML structure.
-3. Design the CSS layout.
-4. Implement JavaScript.
-5. Test the application.
-6. Publish the project.
-
-You can manage these tasks in the Task Manager.`;
-    }
-
-    return `🤖 NEXA AI
-
-I understood your request:
-
-"${text}"
-
-My agentic workflow:
-
-1. Understand your objective.
-2. Break it into smaller tasks.
-3. Assign the appropriate AI agent.
-4. Prepare a suggested solution.
-5. Review the result.
-
-This is a simulated response. Connect an AI API for genuine AI reasoning.`;
-}
-
-function sendMessage() {
-    const text = userInput.value.trim();
-
-    if (!text) return;
-
-    document.getElementById("welcome").style.display = "none";
-
-    addMessage(text, "user");
-    userInput.value = "";
-
-    const agent = detectAgent(text);
-
-    addMessage("✦ " + agent + " is processing your request...", "bot");
-
+    // Step 3: Execute the selected tool
     setTimeout(() => {
-        const lastBotMessage = messages.lastElementChild;
-        if (lastBotMessage) lastBotMessage.remove();
 
-        addMessage(generateResponse(text), "bot");
+        const result = executeTool(plan.tool, userGoal);
+
+        // Step 4: Observe and respond
+        bubble.textContent =
+            "Goal: " + userGoal +
+            "\n\nPlan: " + plan.description +
+            "\n\nTool used: " + plan.tool +
+            "\n\nResult: " + result +
+            "\n\n✓ Task execution finished.";
+
+        activity.scrollIntoView({
+            behavior: "smooth",
+            block: "end"
+        });
+
     }, 700);
 }
 
-userInput.addEventListener("keydown", function(event) {
-    if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
+
+// Create a plan based on the user's goal
+function createPlan(goal) {
+
+    if (goal.includes("calculate") ||
+        goal.includes("add") ||
+        goal.includes("multiply") ||
+        goal.includes("divide") ||
+        goal.includes("subtract")) {
+
+        return {
+            tool: "Calculator",
+            description: "Identify the mathematical expression and calculate the answer."
+        };
     }
-});
 
-// TASK MANAGER
+    if (goal.includes("date") ||
+        goal.includes("today") ||
+        goal.includes("time")) {
 
-function addTask() {
-    const input = document.getElementById("taskInput");
-    const text = input.value.trim();
+        return {
+            tool: "Date Tool",
+            description: "Retrieve the current date and time."
+        };
+    }
 
-    if (!text) return;
+    if (goal.includes("create a task") ||
+        goal.includes("add a task") ||
+        goal.includes("remind me")) {
 
-    const list = document.getElementById("taskList");
+        return {
+            tool: "Task Manager",
+            description: "Create and save a new task."
+        };
+    }
 
-    const li = document.createElement("li");
+    if (goal.includes("show my tasks") ||
+        goal.includes("list my tasks")) {
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
+        return {
+            tool: "Task Manager",
+            description: "Retrieve the saved task list."
+        };
+    }
 
-    const label = document.createElement("span");
-    label.textContent = text;
+    if (goal.includes("complete task") ||
+        goal.includes("finish task")) {
 
-    checkbox.addEventListener("change", function() {
-        li.classList.toggle("done", checkbox.checked);
+        return {
+            tool: "Task Manager",
+            description: "Mark a task as completed."
+        };
+    }
+
+    if (goal.includes("note") ||
+        goal.includes("save this")) {
+
+        return {
+            tool: "Notes Tool",
+            description: "Save the user's note."
+        };
+    }
+
+    if (goal.includes("plan") ||
+        goal.includes("steps") ||
+        goal.includes("how to learn")) {
+
+        return {
+            tool: "Planning Tool",
+            description: "Break the user's goal into smaller steps."
+        };
+    }
+
+    return {
+        tool: "General Assistant",
+        description: "Understand the request and provide a response."
+    };
+}
+
+
+// Execute the selected tool
+function executeTool(tool, originalMessage) {
+
+    const goal = originalMessage.toLowerCase();
+
+    // Calculator tool
+    if (tool === "Calculator") {
+
+        const expression = originalMessage.match(
+            /-?\d+(?:\.\d+)?(?:\s*[+\-*/]\s*-?\d+(?:\.\d+)?)+/
+        );
+
+        if (!expression) {
+            return "Please provide a calculation, such as 25 + 30.";
+        }
+
+        const calculation = expression[0];
+
+        // Allow only basic arithmetic characters
+        if (!/^[\d+\-*/.\s]+$/.test(calculation)) {
+            return "Invalid mathematical expression.";
+        }
+
+        try {
+            const answer = Function(
+                '"use strict"; return (' + calculation + ')'
+            )();
+
+            if (!Number.isFinite(answer)) {
+                return "This calculation is not valid.";
+            }
+
+            return calculation + " = " + answer;
+
+        } catch {
+            return "I couldn't calculate that expression.";
+        }
+    }
+
+
+    // Date and time tool
+    if (tool === "Date Tool") {
+
+        const now = new Date();
+
+        return "Today's date: " +
+            now.toLocaleDateString() +
+            "\nCurrent time: " +
+            now.toLocaleTimeString();
+    }
+
+
+    // Task manager tool
+    if (tool === "Task Manager") {
+
+        if (goal.includes("show my tasks") ||
+            goal.includes("list my tasks")) {
+
+            if (tasks.length === 0) {
+                return "You don't have any saved tasks yet.";
+            }
+
+            return tasks.map((task, index) => {
+                return (index + 1) + ". " +
+                    (task.completed ? "✓ " : "○ ") +
+                    task.name;
+            }).join("\n");
+        }
+
+        if (goal.includes("complete task") ||
+            goal.includes("finish task")) {
+
+            const number = originalMessage.match(/\d+/);
+
+            if (number) {
+                const index = Number(number[0]) - 1;
+
+                if (tasks[index]) {
+                    tasks[index].completed = true;
+                    return "Task completed: " + tasks[index].name;
+                }
+            }
+
+            return "Please mention the task number. Example: Complete task 1.";
+        }
+
+        let taskName = originalMessage
+            .replace(/create a task to/i, "")
+            .replace(/create a task/i, "")
+            .replace(/add a task to/i, "")
+            .replace(/add a task/i, "")
+            .replace(/remind me to/i, "")
+            .trim();
+
+        if (!taskName) {
+            return "Please tell me what task you want to create.";
+        }
+
+        tasks.push({
+            name: taskName,
+            completed: false
+        });
+
+        return "Your task has been created successfully: " + taskName;
+    }
+
+
+    // Notes tool
+    if (tool === "Notes Tool") {
+
+        const note = originalMessage
+            .replace(/save this note/i, "")
+            .replace(/save this/i, "")
+            .replace(/note:/i, "")
+            .trim();
+
+        if (!note) {
+            return "Please provide the note you want to save.";
+        }
+
+        notes.push(note);
+
+        return "Note saved successfully!\n\nSaved note: " + note;
+    }
+
+
+    // Planning tool
+    if (tool === "Planning Tool") {
+
+        return "Here is a simple action plan:\n\n" +
+            "1. Define your main goal.\n" +
+            "2. Learn the basic concepts.\n" +
+            "3. Practice with small exercises.\n" +
+            "4. Work on a practical project.\n" +
+            "5. Review your progress and improve.\n\n" +
+            "Your goal: " + originalMessage;
+    }
+
+
+    // General assistant
+    return "I understand your request, but I don't have a suitable tool for it yet.\n\n" +
+        "Try asking me to calculate something, create a task, save a note, " +
+        "get today's date, or create a learning plan.";
+}
+
+
+// Display chat messages
+function addMessage(text, sender) {
+
+    const message = document.createElement("div");
+
+    message.className = sender === "user"
+        ? "message user-message"
+        : "message";
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+    avatar.textContent = sender === "user" ? "You" : "✦";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = text;
+
+    message.appendChild(avatar);
+    message.appendChild(bubble);
+
+    messages.appendChild(message);
+
+    message.scrollIntoView({
+        behavior: "smooth",
+        block: "end"
     });
+}
 
-    const remove = document.createElement("button");
-    remove.textContent = "Delete";
 
-    remove.onclick = function() {
-        li.remove();
-    };
+// Example prompts
+function useExample(text) {
+    input.value = text;
+    runAgent();
+}
 
-    li.append(checkbox, label, remove);
-    list.appendChild(li);
 
+// New chat
+function newChat() {
+    messages.innerHTML = "";
+    welcome.style.display = "block";
     input.value = "";
-}
-
-// RESEARCH ASSISTANT
-
-function researchTopic() {
-    const topic = document.getElementById("researchInput").value.trim();
-
-    if (!topic) {
-        alert("Please enter a research topic.");
-        return;
-    }
-
-    document.getElementById("researchResult").textContent =
-        `Research topic: ${topic}
-
-Research framework:
-
-1. Background and introduction.
-2. Important concepts.
-3. Main research questions.
-4. Reliable sources to investigate.
-5. Comparison and analysis.
-6. Summary and conclusion.
-
-Note: This is a research outline, not live web research.`;
-}
-
-// FILE ASSISTANT
-
-function readFile(input) {
-    const file = input.files[0];
-
-    if (!file) return;
-
-    if (!file.name.toLowerCase().endsWith(".txt")) {
-        alert("This demo supports TXT files only.");
-        return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-        alert("Please select a file smaller than 2 MB.");
-        return;
-    }
-
-    const reader = new FileReader();
-
-    reader.onload = function(event) {
-        document.getElementById("fileResult").textContent =
-            "File: " + file.name + "\n\n" + event.target.result;
-    };
-
-    reader.readAsText(file);
-}
-
-function attachFile(input) {
-    const file = input.files[0];
-
-    if (!file) return;
-
-    if (!file.name.toLowerCase().endsWith(".txt")) {
-        alert("This demo supports TXT files only.");
-        return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-        alert("Please select a file smaller than 2 MB.");
-        return;
-    }
-
-    showSection("files");
-
-    const reader = new FileReader();
-
-    reader.onload = function(event) {
-        document.getElementById("fileResult").textContent =
-            "File: " + file.name + "\n\n" + event.target.result;
-    };
-
-    reader.readAsText(file);
-}
-
-// VOICE ASSISTANT
-
-function startVoice() {
-    const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-        alert("Voice recognition is not supported in this browser.");
-        return;
-    }
-
-    const recognition = new SpeechRecognition();
-
-    recognition.lang = "en-IN";
-
-    recognition.onresult = function(event) {
-        userInput.value = event.results[0][0].transcript;
-    };
-
-    recognition.start();
 }
