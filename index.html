@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXA AI - Agentic Chatbot</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+    <aside class="sidebar">
+        <h2>✦ NEXA AI</h2>
+        <button onclick="newChat()">+ New Chat</button>
+
+        <nav>
+            <a href="#" onclick="showSection('chat')">💬 AI Chat</a>
+            <a href="#" onclick="showSection('agents')">🤖 AI Agents</a>
+            <a href="#" onclick="showSection('tasks')">📋 Task Manager</a>
+            <a href="#" onclick="showSection('research')">🔎 Research Assistant</a>
+            <a href="#" onclick="showSection('files')">📁 File Assistant</a>
+            <a href="#" onclick="showSection('automation')">⚡ Automation</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <p>Personal AI Workspace</p>
+            <small>Prototype Mode</small>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header>
+            <h3 id="pageTitle">AI Chat</h3>
+            <span>● System Online</span>
+        </header>
+
+        <section id="chat" class="section active">
+            <div class="welcome" id="welcome">
+                <h1>Welcome to <span>NEXA AI</span></h1>
+                <p>Your intelligent AI agent. Ask questions, plan tasks and explore ideas.</p>
+
+                <div class="suggestions">
+                    <button onclick="suggest('Plan my daily schedule')">📅 Plan my day</button>
+                    <button onclick="suggest('Research artificial intelligence')">🔎 Research a topic</button>
+                    <button onclick="suggest('Create a website project task list')">📋 Create tasks</button>
+                    <button onclick="suggest('Explain multi-agent AI')">🤖 Explore AI agents</button>
+                </div>
+            </div>
+
+            <div id="messages" class="messages"></div>
+
+            <div class="chat-input">
+                <textarea id="userInput" placeholder="Message NEXA AI..."></textarea>
+                <div class="input-actions">
+                    <label for="chatFile">＋ Attach file</label>
+                    <input type="file" id="chatFile" hidden onchange="attachFile(this)">
+                    <button onclick="startVoice()">🎤</button>
+                    <button class="send" onclick="sendMessage()">➤</button>
+                </div>
+            </div>
+            <p class="disclaimer">NEXA AI can make mistakes. This is a simulated AI prototype.</p>
+        </section>
+
+        <section id="agents" class="section">
+            <h1>Our AI Agents</h1>
+            <p>Specialized agents working together.</p>
+            <div class="cards">
+                <div class="card">
+                    <h2>🔎 Research Agent</h2>
+                    <p>Finds information, organizes research and prepares summaries.</p>
+                    <button onclick="suggest('Research the latest AI trends')">Start Agent</button>
+                </div>
+                <div class="card">
+                    <h2>📅 Planning Agent</h2>
+                    <p>Creates schedules, plans and project timelines.</p>
+                    <button onclick="suggest('Create a weekly study plan')">Start Agent</button>
+                </div>
+                <div class="card">
+                    <h2>⚙️ Task Agent</h2>
+                    <p>Breaks goals into smaller actionable tasks.</p>
+                    <button onclick="suggest('Break down a portfolio website project')">Start Agent</button>
+                </div>
+                <div class="card">
+                    <h2>📊 Analysis Agent</h2>
+                    <p>Analyzes information and summarizes documents.</p>
+                    <button onclick="suggest('Explain how data analysis works')">Start Agent</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="tasks" class="section">
+            <h1>Task Manager</h1>
+            <p>Organize and track your activities.</p>
+            <div class="task-input">
+                <input type="text" id="taskInput" placeholder="Enter a new task">
+                <button onclick="addTask()">Add Task</button>
+            </div>
+            <ul id="taskList"></ul>
+        </section>
+
+        <section id="research" class="section">
+            <h1>Research Assistant</h1>
+            <p>Generate a structured research framework.</p>
+            <div class="research-box">
+                <input id="researchInput" placeholder="Enter your research topic">
+                <button onclick="researchTopic()">Research</button>
+            </div>
+            <div id="researchResult"></div>
+        </section>
+
+        <section id="files" class="section">
+            <h1>File Assistant</h1>
+            <p>Upload and preview text documents.</p>
+            <div class="file-box">
+                <input type="file" id="fileInput" onchange="readFile(this)">
+                <div id="fileResult"></div>
+            </div>
+        </section>
+
+        <section id="automation" class="section">
+            <h1>Automation Center</h1>
+            <p>Explore automated workflows.</p>
+            <div class="cards">
+                <div class="card">
+                    <h2>📅 Daily Planner</h2>
+                    <p>Generate a daily schedule.</p>
+                    <button onclick="suggest('Create a productive daily schedule')">Run Workflow</button>
+                </div>
+                <div class="card">
+                    <h2>✉️ Email Assistant</h2>
+                    <p>Prepare professional email drafts.</p>
+                    <button onclick="suggest('Help me draft a professional email')">Run Workflow</button>
+                </div>
+                <div class="card">
+                    <h2>📋 Project Automation</h2>
+                    <p>Break projects into milestones.</p>
+                    <button onclick="suggest('Break down a website project into milestones')">Run Workflow</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
