@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova Agent AI</title>
+    <title>Milo AI - Smart Assistant</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,73 +12,150 @@
 <div class="app">
 
     <aside class="sidebar">
-        <h2>✦ Nova Agent</h2>
+        <div class="logo">✳ Milo AI</div>
 
-        <button onclick="newChat()">+ New Chat</button>
+        <button class="new-chat" onclick="newChat()">＋ New Chat</button>
 
-        <h4>YOUR ASSISTANT</h4>
-        <p class="menu active">💬 AI Chat</p>
-        <p class="menu">🤖 Agent Mode</p>
-        <p class="menu">📋 Task Assistant</p>
+        <p class="side-heading">WORKSPACE</p>
+        <div class="nav active">💬 AI Assistant</div>
+        <div class="nav" onclick="showTasks()">☷ Task Manager</div>
+        <div class="nav" onclick="showNotes()">▤ Saved Notes</div>
 
-        <div class="bottom">
-            <p>Basic Agentic AI Project</p>
-            <small>Plan • Act • Observe</small>
+        <p class="side-heading recent-heading">RECENT CONVERSATIONS</p>
+        <div id="history"></div>
+
+        <div class="profile">
+            <div class="profile-icon">M</div>
+            <div>
+                <b>Milo Assistant</b>
+                <small>Personal AI Agent</small>
+            </div>
         </div>
     </aside>
 
     <main class="main">
 
-        <header>
-            <h3>AI Agent Assistant</h3>
-            <span>● Ready</span>
+        <header class="topbar">
+            <div>
+                <h3>AI Assistant</h3>
+                <small>Your intelligent workspace</small>
+            </div>
+            <span class="online">● Online</span>
         </header>
 
-        <section class="chat-area" id="chatArea">
+        <div class="workspace">
 
-            <div class="welcome" id="welcome">
-                <div class="symbol">✦</div>
-                <h1>What can I do for you?</h1>
-                <p>Give me a goal. I'll plan and work on it.</p>
+            <section class="chat-section">
 
-                <div class="examples">
-                    <button onclick="useExample('Calculate 250 + 350')">
-                        🧮 Calculate 250 + 350
-                    </button>
+                <div class="welcome" id="welcome">
+                    <div class="hero-icon">✳</div>
+                    <p class="eyebrow">MEET YOUR AI ASSISTANT</p>
+                    <h1>What would you like<br><span>me to accomplish?</span></h1>
+                    <p class="intro">Give me a goal. I'll create a plan, choose the right tools and work through it.</p>
 
-                    <button onclick="useExample('Create a task to learn HTML')">
-                        📋 Create a task
-                    </button>
+                    <div class="suggestions">
+                        <button onclick="usePrompt('Create a 7 day plan to learn JavaScript')">
+                            <span>🎯</span>
+                            <div><b>Create a plan</b><small>Break goals into steps</small></div>
+                        </button>
 
-                    <button onclick="useExample('Make a plan to learn JavaScript')">
-                        🎯 Make a learning plan
-                    </button>
+                        <button onclick="usePrompt('Research the latest AI trends')">
+                            <span>🔎</span>
+                            <div><b>Research a topic</b><small>Explore and summarize</small></div>
+                        </button>
 
-                    <button onclick="useExample('What is today’s date?')">
-                        📅 Get today's date
-                    </button>
+                        <button onclick="usePrompt('Create a task to finish my portfolio')">
+                            <span>📋</span>
+                            <div><b>Manage tasks</b><small>Organize your work</small></div>
+                        </button>
+
+                        <button onclick="usePrompt('Calculate 250 multiplied by 35')">
+                            <span>🧮</span>
+                            <div><b>Solve a problem</b><small>Use smart tools</small></div>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <div id="messages"></div>
+                <div id="chat"></div>
 
-        </section>
+                <div class="composer-area">
+                    <div class="composer">
+                        <textarea id="messageInput" placeholder="Tell Milo what you want to do..." rows="1"></textarea>
+                        <div class="composer-footer">
+                            <span>✦ Agent mode enabled</span>
+                            <button onclick="sendMessage()" id="sendButton">↑</button>
+                        </div>
+                    </div>
+                    <p class="disclaimer">Milo AI is a demonstration project. Verify important information.</p>
+                </div>
 
-        <div class="input-area">
-            <div class="input-box">
-                <input
-                    type="text"
-                    id="userInput"
-                    placeholder="Tell your AI agent what to do..."
-                    onkeydown="if(event.key === 'Enter') runAgent()"
-                >
-                <button onclick="runAgent()">➤</button>
-            </div>
-            <p>Nova Agent can plan tasks and use basic built-in tools.</p>
+            </section>
+
+            <aside class="activity">
+
+                <div class="activity-header">
+                    <div>
+                        <small>LIVE WORKSPACE</small>
+                        <h3>Agent Activity</h3>
+                    </div>
+                    <span id="status">IDLE</span>
+                </div>
+
+                <div class="agent-info">
+                    <div class="agent-logo">✳</div>
+                    <div>
+                        <b>Milo Agent</b>
+                        <small>Smart task assistant</small>
+                    </div>
+                </div>
+
+                <h4 class="section-title">EXECUTION PROCESS</h4>
+
+                <div id="steps" class="steps">
+                    <div class="empty">
+                        <span>◌</span>
+                        <b>Waiting for a goal</b>
+                        <p>Your agent activity will appear here.</p>
+                    </div>
+                </div>
+
+                <h4 class="section-title">AVAILABLE TOOLS</h4>
+
+                <div class="tool">
+                    <span>🔎</span>
+                    <div><b>Research</b><small>Information assistant</small></div>
+                    <i>●</i>
+                </div>
+
+                <div class="tool">
+                    <span>🧮</span>
+                    <div><b>Calculator</b><small>Mathematical operations</small></div>
+                    <i>●</i>
+                </div>
+
+                <div class="tool">
+                    <span>📋</span>
+                    <div><b>Task Manager</b><small>Task organization</small></div>
+                    <i>●</i>
+                </div>
+
+                <div class="tool">
+                    <span>📝</span>
+                    <div><b>Notes</b><small>Save information</small></div>
+                    <i>●</i>
+                </div>
+
+                <div class="tool">
+                    <span>📅</span>
+                    <div><b>Date & Time</b><small>Current date and time</small></div>
+                    <i>●</i>
+                </div>
+
+                <div class="activity-footer">● All local demo tools ready</div>
+
+            </aside>
         </div>
-
     </main>
-
 </div>
 
 <script src="script.js"></script>
