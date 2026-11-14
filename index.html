@@ -1,34 +1,53 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Agent Chat</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova AI Assistant</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="app">
-    <header class="topbar">
-      <h1>Agent Chat</h1>
-      <div class="key-box">
-        <input id="api-key" type="password" placeholder="Anthropic API key" autocomplete="off">
-        <button id="save-key" type="button">Save key</button>
-      </div>
-    </header>
 
-    <section id="messages" class="messages" aria-live="polite">
-      <div class="msg bot">
-        Hi, I can answer questions and use tools: a calculator, the current time,
-        and a notepad. Try: "What is 18% of 2450, and save the result as a note."
-      </div>
-    </section>
+<div class="app">
+    <aside class="sidebar">
+        <h2>✦ NOVA</h2>
+        <button onclick="newChat()">+ New Chat</button>
+        <p class="menu-title">WORKSPACE</p>
+        <button class="menu active">✦ AI Assistant</button>
+        <button class="menu" onclick="showTasks()">☷ My Tasks</button>
+        <div class="status">🟢 Agent Active</div>
+    </aside>
 
-    <form id="chat-form" class="composer">
-      <input id="user-input" type="text" placeholder="Ask or give a task..." autocomplete="off" required>
-      <button id="send-btn" type="submit">Send</button>
-    </form>
-  </main>
+    <main class="main">
+        <header>
+            <span>✦ Your Personal AI Agent</span>
+            <button onclick="newChat()">Clear Chat</button>
+        </header>
 
-  <script src="script.js"></script>
+        <section class="chat-area" id="chatArea">
+            <div class="welcome" id="welcome">
+                <h1>What can I help<br><span>you get done?</span></h1>
+                <p>I can understand your goals, create plans, perform tasks and remember information.</p>
+
+                <div class="suggestions">
+                    <button onclick="quickAsk('Plan my day with study and breaks')">📅 Plan my day</button>
+                    <button onclick="quickAsk('Calculate 18% of 2450')">🧮 Calculate something</button>
+                    <button onclick="quickAsk('Remember that my project deadline is Friday')">🧠 Remember something</button>
+                    <button onclick="quickAsk('Create a checklist for building a portfolio website')">☷ Create a checklist</button>
+                </div>
+            </div>
+            <div id="messages"></div>
+        </section>
+
+        <div class="input-area">
+            <textarea id="userInput" placeholder="Tell Nova what you want to accomplish..."></textarea>
+            <button onclick="sendMessage()">➤</button>
+        </div>
+        <p class="footer">Powered by Nova Agent System</p>
+    </main>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
