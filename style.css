@@ -1,129 +1,251 @@
-:root {
-  --bg: #eef1f4;
-  --panel: #ffffff;
-  --ink: #1c2530;
-  --line: #d5dbe2;
-  --user: #1f4e79;
-  --user-ink: #ffffff;
-  --bot: #e6ebf0;
-  --tool: #fff6d9;
-  --tool-line: #e5cf85;
-  --error: #b3261e;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #12171d;
-    --panel: #1a2129;
-    --ink: #e8edf2;
-    --line: #2d3742;
-    --user: #3b7bb8;
-    --bot: #232c36;
-    --tool: #2f2a17;
-    --tool-line: #6b5d24;
-    --error: #f2877f;
-  }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-
-* { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
 
 body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.5;
+    font-family: Arial, sans-serif;
+    background: #0d0e15;
+    color: white;
 }
 
 .app {
-  display: flex;
-  flex-direction: column;
-  max-width: 720px;
-  height: 100%;
-  margin: 0 auto;
-  background: var(--panel);
-  border-left: 1px solid var(--line);
-  border-right: 1px solid var(--line);
+    display: flex;
+    min-height: 100vh;
 }
 
-.topbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--line);
+.sidebar {
+    width: 240px;
+    background: #12131d;
+    padding: 25px 18px;
+    border-right: 1px solid #292a39;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
 }
 
-.topbar h1 { margin: 0; font-size: 1.1rem; }
-.key-box { display: flex; gap: 8px; }
-input, button { font: inherit; }
-
-input {
-  padding: 9px 12px;
-  color: var(--ink);
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+.sidebar h2 {
+    color: #b49aff;
+    margin-bottom: 20px;
 }
 
-input:focus-visible, button:focus-visible {
-  outline: 2px solid var(--user);
-  outline-offset: 2px;
+.sidebar button {
+    padding: 13px;
+    border: 1px solid #343044;
+    border-radius: 9px;
+    background: #211d30;
+    color: white;
+    text-align: left;
+    cursor: pointer;
 }
 
-button {
-  padding: 9px 16px;
-  color: var(--user-ink);
-  background: var(--user);
-  border: 0;
-  border-radius: 8px;
-  cursor: pointer;
+.menu-title {
+    color: #85859a;
+    font-size: 11px;
+    margin-top: 20px;
 }
 
-button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.messages {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 18px;
-  overflow-y: auto;
+.sidebar .menu {
+    background: transparent;
+    border: none;
 }
 
-.msg {
-  max-width: 85%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+.sidebar .active {
+    background: #282238;
+    color: #c6b2ff;
 }
 
-.msg.user { align-self: flex-end; color: var(--user-ink); background: var(--user); }
-.msg.bot { align-self: flex-start; background: var(--bot); }
-
-.msg.tool {
-  align-self: flex-start;
-  font-size: 0.88rem;
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  background: var(--tool);
-  border: 1px solid var(--tool-line);
+.status {
+    margin-top: auto;
+    color: #69dba5;
+    font-size: 13px;
 }
 
-.msg.error { align-self: flex-start; color: var(--error); border: 1px solid var(--error); }
-
-.composer {
-  display: flex;
-  gap: 8px;
-  padding: 14px 18px;
-  border-top: 1px solid var(--line);
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
-.composer input { flex: 1; }
+header {
+    padding: 22px 30px;
+    border-bottom: 1px solid #292a39;
+    display: flex;
+    justify-content: space-between;
+}
 
-@media (max-width: 520px) {
-  .key-box { width: 100%; }
-  .key-box input { flex: 1; }
+header span {
+    color: #c4b1ff;
+}
+
+header button {
+    background: transparent;
+    color: white;
+    border: 1px solid #39394a;
+    padding: 8px 13px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.chat-area {
+    flex: 1;
+    padding: 35px 20px;
+    overflow-y: auto;
+}
+
+.welcome {
+    max-width: 650px;
+    margin: 8vh auto 35px;
+}
+
+.welcome h1 {
+    font-size: 43px;
+    line-height: 1.2;
+    margin-bottom: 15px;
+}
+
+.welcome h1 span {
+    color: #ad91ff;
+}
+
+.welcome p {
+    color: #aaaabd;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.suggestions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.suggestions button {
+    background: #191a27;
+    border: 1px solid #343044;
+    color: white;
+    padding: 17px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.suggestions button:hover {
+    border-color: #a78bfa;
+    background: #252035;
+}
+
+#messages {
+    max-width: 750px;
+    margin: auto;
+}
+
+.message {
+    margin: 15px 0;
+    padding: 15px;
+    background: #191a27;
+    border: 1px solid #343044;
+    border-radius: 12px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+.user {
+    background: #29213c;
+    margin-left: 12%;
+}
+
+.agent {
+    margin-right: 12%;
+}
+
+.plan {
+    margin-top: 12px;
+    padding: 13px;
+    background: #111923;
+    border-radius: 8px;
+    color: #bba9ff;
+}
+
+.plan p {
+    margin: 8px 0;
+}
+
+.result {
+    margin-top: 12px;
+    padding: 13px;
+    background: #14251e;
+    border: 1px solid #28523d;
+    border-radius: 8px;
+    color: #a8edc8;
+}
+
+.input-area {
+    display: flex;
+    gap: 10px;
+    margin: 0 auto;
+    width: 85%;
+    max-width: 800px;
+    background: #191a27;
+    border: 1px solid #414153;
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.input-area textarea {
+    flex: 1;
+    background: transparent;
+    color: white;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 14px;
+    padding: 10px;
+    min-height: 40px;
+}
+
+.input-area button {
+    background: #a78bfa;
+    border: none;
+    border-radius: 9px;
+    width: 42px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.footer {
+    text-align: center;
+    color: #77778c;
+    font-size: 11px;
+    padding: 12px;
+}
+
+@media(max-width:650px) {
+    .sidebar {
+        width: 65px;
+        padding: 15px 8px;
+    }
+
+    .sidebar h2 {
+        font-size: 13px;
+    }
+
+    .sidebar button, .menu-title, .status {
+        font-size: 0;
+    }
+
+    .welcome h1 {
+        font-size: 34px;
+    }
+
+    .suggestions {
+        grid-template-columns: 1fr;
+    }
+
+    .input-area {
+        width: 94%;
+    }
 }
