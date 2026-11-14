@@ -1,184 +1,169 @@
-// ---------- Config ----------
-const MODEL = "claude-sonnet-5-5";   // change to any model your key can use
-const API_URL = "https://api.anthropic.com/v1/messages";
-const MAX_STEPS = 6;                 // safety limit on the agent loop
 
-// ---------- DOM ----------
-const messagesEl = document.getElementById("messages");
-const formEl = document.getElementById("chat-form");
-const inputEl = document.getElementById("user-input");
-const sendBtn = document.getElementById("send-btn");
-const keyInput = document.getElementById("api-key");
-const saveKeyBtn = document.getElementById("save-key");
+let memory = JSON.parse(localStorage.getItem("novaMemory") || "[]");
+let tasks = JSON.parse(localStorage.getItem("novaTasks") || "[]");
 
-// ---------- State ----------
-let apiKey = "";
-try { apiKey = localStorage.getItem("anthropic_key") || ""; } catch (e) {}
-if (apiKey) keyInput.value = apiKey;
+function saveData() {
+    localStorage.setItem("novaMemory", JSON.stringify(memory));
+    localStorage.setItem("novaTasks", JSON.stringify(tasks));
+}
 
-const history = [];   // full conversation sent to the API
-const notes = [];     // memory for the notepad tool
-
-// ---------- Tools the agent can use ----------
-const tools = [
-  {
-    name: "calculator",
-    description: "Evaluate a math expression, e.g. '2450 * 0.18'. Supports + - * / % ( ) and decimals.",
-    input_schema: {
-      type: "object",
-      properties: { expression: { type: "string", description: "The math expression" } },
-      required: ["expression"]
-    }
-  },
-  {
-    name: "get_current_time",
-    description: "Get the user's current local date and time.",
-    input_schema: { type: "object", properties: {} }
-  },
-  {
-    name: "save_note",
-    description: "Save a short note to the notepad.",
-    input_schema: {
-      type: "object",
-      properties: { text: { type: "string", description: "The note text" } },
-      required: ["text"]
-    }
-  },
-  {
-    name: "read_notes",
-    description: "Read all notes saved in the notepad.",
-    input_schema: { type: "object", properties: {} }
-  }
-];
-
-const toolFunctions = {
-  calculator({ expression }) {
-    if (!/^[0-9+\-*/%().\s]+$/.test(expression)) {
-      throw new Error("Only numbers and + - * / % ( ) are allowed.");
-    }
-    return String(Function(`"use strict"; return (${expression})`)());
-  },
-  get_current_time() {
-    return new Date().toString();
-  },
-  save_note({ text }) {
-    notes.push(text);
-    return `Saved. You now have ${notes.length} note(s).`;
-  },
-  read_notes() {
-    return notes.length ? notes.map((n, i) => `${i + 1}. ${n}`).join("\n") : "No notes yet.";
-  }
-};
-
-// ---------- UI helpers ----------
 function addMessage(text, type) {
-  const div = document.createElement("div");
-  div.className = `msg ${type}`;
-  div.textContent = text;
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-  return div;
+    const div = document.createElement("div");
+    div.className = "message " + type;
+    div.textContent = text;
+    document.getElementById("messages").appendChild(div);
+    div.scrollIntoView({ behavior: "smooth" });
+    return div;
 }
 
-function setBusy(busy) {
-  sendBtn.disabled = busy;
-  inputEl.disabled = busy;
-  if (!busy) inputEl.focus();
+function quickAsk(text) {
+    document.getElementById("userInput").value = text;
+    sendMessage();
 }
 
-// ---------- API call ----------
-async function callModel() {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 1024,
-      system: "You are a helpful agent. Use tools when they help, and keep answers short.",
-      tools,
-      messages: history
-    })
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || `Request failed (${res.status})`);
-  }
-  return res.json();
+function newChat() {
+    document.getElementById("messages").innerHTML = "";
+    document.getElementById("welcome").style.display = "block";
 }
 
-// ---------- The agent loop ----------
-// Ask the model -> if it wants tools, run them -> send results back -> repeat.
-async function runAgent() {
-  for (let step = 0; step < MAX_STEPS; step++) {
-    const data = await callModel();
-    history.push({ role: "assistant", content: data.content });
+function showTasks() {
+    document.getElementById("welcome").style.display = "none";
 
-    for (const block of data.content) {
-      if (block.type === "text" && block.text.trim()) addMessage(block.text, "bot");
+    const result = addMessage("MY SAVED TASKS\n" +
+        (tasks.length ? tasks.map((t, i) => `${i + 1}. ${t}`).join("\n") :
+        "No tasks saved yet."), "agent");
+}
+
+function detectIntent(text) {
+    const t = text.toLowerCase();
+
+    if (/remember|save a note|note that/.test(t))
+        return "memory";
+
+    if (/checklist|to-do|todo|task list/.test(t))
+        return "tasks";
+
+    if (/plan my day|make a plan|schedule/.test(t))
+        return "planner";
+
+    if (/calculate|what is|compute/.test(t))
+        return "calculator";
+
+    if (/show.*(notes|memory)|what did i ask you to remember/.test(t))
+        return "recall";
+
+    return "general";
+}
+
+function createPlan(intent) {
+    const plans = {
+        memory: ["Identify the information", "Save it in memory", "Confirm the saved information"],
+        tasks: ["Understand the goal", "Create a task list", "Save the tasks"],
+        planner: ["Understand your activities", "Organise the activities", "Generate a daily plan"],
+        calculator: ["Read the numbers", "Execute the calculation", "Display the result"],
+        recall: ["Access saved memory", "Retrieve stored information", "Display the information"],
+        general: ["Understand your request", "Analyse the goal", "Suggest the next steps"]
+    };
+
+    return plans[intent];
+}
+
+function calculate(text) {
+    const match = text.match(/(-?\d+(?:\.\d+)?)\s*(\+|-|\*|\/|% of)\s*(-?\d+(?:\.\d+)?)/i);
+
+    if (!match) return null;
+
+    const a = Number(match[1]);
+    const op = match[2];
+    const b = Number(match[3]);
+
+    switch (op) {
+        case "+": return a + b;
+        case "-": return a - b;
+        case "*": return a * b;
+        case "/": return b === 0 ? "Cannot divide by zero" : a / b;
+        case "% of": return (a / 100) * b;
+    }
+}
+
+function executeTool(intent, text) {
+    let result = "";
+
+    if (intent === "memory") {
+        const note = text.replace(/remember|save a note|note that/ig, "").trim();
+        if (!note) return "Please tell me what you want me to remember.";
+        memory.push(note);
+        saveData();
+        result = "Memory tool executed successfully.\nSaved: " + note;
     }
 
-    if (data.stop_reason !== "tool_use") return;
+    else if (intent === "tasks") {
+        const checklist = [
+            "Understand the project requirements",
+            "Prepare the project structure",
+            "Develop the HTML structure",
+            "Apply CSS styling",
+            "Add JavaScript functionality",
+            "Test the completed project"
+        ];
 
-    const results = [];
-    for (const block of data.content) {
-      if (block.type !== "tool_use") continue;
-
-      let output, isError = false;
-      try {
-        output = toolFunctions[block.name](block.input);
-      } catch (e) {
-        output = `Error: ${e.message}`;
-        isError = true;
-      }
-
-      addMessage(`${block.name}(${JSON.stringify(block.input)}) -> ${output}`, "tool");
-      results.push({
-        type: "tool_result",
-        tool_use_id: block.id,
-        content: output,
-        is_error: isError
-      });
+        tasks.push(...checklist);
+        saveData();
+        result = "Task manager executed successfully:\n" +
+            checklist.map((x, i) => `${i + 1}. ${x}`).join("\n");
     }
 
-    history.push({ role: "user", content: results });
-  }
-  addMessage("Stopped: reached the step limit.", "error");
+    else if (intent === "planner") {
+        result = "Planner tool executed successfully:\n" +
+            "1. Start with your most important activity.\n" +
+            "2. Complete your study or work session.\n" +
+            "3. Take a short break.\n" +
+            "4. Continue with the next activity.\n" +
+            "5. Review your progress.";
+    }
+
+    else if (intent === "calculator") {
+        const answer = calculate(text);
+        result = answer === null
+            ? "Please enter a calculation such as 25 + 75 or 18% of 2450."
+            : "Calculator tool executed successfully.\nResult: " + answer;
+    }
+
+    else if (intent === "recall") {
+        result = "Saved memories:\n" +
+            (memory.length ? memory.join("\n") : "No memories saved yet.");
+    }
+
+    else {
+        result = "I can help with planning, calculations, saving information and creating checklists. Try one of those tasks!";
+    }
+
+    return result;
 }
 
-// ---------- Events ----------
-saveKeyBtn.addEventListener("click", () => {
-  apiKey = keyInput.value.trim();
-  try { localStorage.setItem("anthropic_key", apiKey); } catch (e) {}
-  addMessage(apiKey ? "API key saved in this browser." : "API key cleared.", "bot");
-});
+async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const text = input.value.trim();
 
-formEl.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const text = inputEl.value.trim();
-  if (!text) return;
+    if (!text) return;
 
-  if (!apiKey) {
-    addMessage("Add your Anthropic API key above first.", "error");
-    return;
-  }
+    document.getElementById("welcome").style.display = "none";
+    addMessage(text, "user");
+    input.value = "";
 
-  addMessage(text, "user");
-  history.push({ role: "user", content: text });
-  inputEl.value = "";
-  setBusy(true);
+    const intent = detectIntent(text);
+    const plan = createPlan(intent);
 
-  try {
-    await runAgent();
-  } catch (e) {
-    addMessage(e.message, "error");
-    history.pop();
-  } finally {
-    setBusy(false);
-  }
-});
+    const agent = addMessage("AGENT THINKING...\n\n" +
+        plan.map((step, i) => `${i + 1}. ${step}`).join("\n"), "agent");
+
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    const result = executeTool(intent, text);
+
+    agent.textContent = "✦ NOVA AGENT\n\n" +
+        "Goal identified: " + intent.toUpperCase() +
+        "\n\nACTION PLAN:\n" +
+        plan.map((step, i) => "✓ " + step).join("\n") +
+        "\n\nTOOL EXECUTION:\n" + result;
+}
