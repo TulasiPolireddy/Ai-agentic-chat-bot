@@ -120,9 +120,15 @@ function detectIntent(text) {
     if (/\b(show|view|read|find|open)\b/.test(t) && /\b(notes|saved notes)\b/.test(t))
         return "showNotes";
 
-    if (/\b(calculate|compute|solve|what is|how much is)\b/.test(t)
-        && /[\d]/.test(t))
+    // Recognise calculator commands, plain arithmetic, and spoken operators.
+    if (
+        (/\b(calculate|compute|solve|what is|what's|how much is)\b/.test(t) && /\d/.test(t)) ||
+        /\d[\d,]*(?:\.\d+)?\s*[+\-*/×÷%()]\s*[\d(]/.test(t) ||
+        /\d+(?:\.\d+)?\s*(?:plus|minus|times|multiplied by|divided by|modulo)\s*\d+/i.test(t) ||
+        /\d+(?:\.\d+)?\s*%\s*of\s*\d+/i.test(t)
+    ) {
         return "calculator";
+    }
 
     if (/\b(weekly plan|plan my week|week schedule|organize my week|organise my week)\b/.test(t))
         return "weekly";
@@ -332,53 +338,73 @@ function showNotes() {
     );
 }
 
-/* CALCULATOR TOOL */
+/* CALCULATOR TOOL - UPDATED */
 
 function calculateExpression(expression) {
-    let exp = expression.toLowerCase()
+    let exp = String(expression)
+        .toLowerCase()
         .replace(/,/g, "")
-        .replace(/(\d+(?:\.\d+)?)\s*% of\s*(\d+(?:\.\d+)?)/g,
-            "($1/100*$2)")
-        .replace(/(\d+(?:\.\d+)?)%/g, "($1/100)")
+        .replace(/×/g, "*")
+        .replace(/÷/g, "/")
+        .replace(/\bwhat's\b/g, "what is")
+        .replace(/\bmultiplied\s+by\b/g, "*")
+        .replace(/\bdivided\s+by\b/g, "/")
+        .replace(/\btimes\b/g, "*")
         .replace(/\bplus\b/g, "+")
         .replace(/\bminus\b/g, "-")
-        .replace(/\btimes\b/g, "*")
-        .replace(/\bmultiplied by\b/g, "*")
-        .replace(/\bdivided by\b/g, "/")
         .replace(/\bmodulo\b/g, "%");
 
-    exp = exp.replace(/^(calculate|compute|solve|what is|how much is)\s*/i, "");
+    // Remove common calculator instructions while keeping the expression.
+    exp = exp.replace(/^\s*(please\s+)?(calculate|compute|solve)\s*/i, "");
+    exp = exp.replace(/^\s*(what is|how much is)\s*/i, "");
+    exp = exp.replace(/[?]+/g, "").trim();
 
-    if (!/^[\d+\-*/().%\s]+$/.test(exp)) {
+    // Handle expressions such as: 18% of 2450
+    const percentMatch = exp.match(
+        /^(-?\d+(?:\.\d+)?)\s*%\s*of\s*(-?\d+(?:\.\d+)?)$/
+    );
+
+    if (percentMatch) {
+        const result = Number(percentMatch[1]) / 100 * Number(percentMatch[2]);
+        return Number.isFinite(result) ? Number(result.toFixed(8)) : null;
+    }
+
+    exp = exp.replace(/\s+/g, "");
+
+    if (!exp || !/^[\d+\-*/().%]+$/.test(exp)) {
         return null;
     }
 
     const tokens = exp.match(/\d+(?:\.\d+)?|[+\-*/()%]/g);
 
-    if (!tokens || tokens.join("") !== exp.replace(/\s/g, "")) {
+    if (!tokens || tokens.join("") !== exp) {
         return null;
     }
 
     let position = 0;
 
-    function expression() {
-        let value = term();
+    function parseExpression() {
+        let value = parseTerm();
 
         while (tokens[position] === "+" || tokens[position] === "-") {
             const operator = tokens[position++];
-            const right = term();
+            const right = parseTerm();
             value = operator === "+" ? value + right : value - right;
         }
 
         return value;
     }
 
-    function term() {
-        let value = factor();
+    function parseTerm() {
+        let value = parseFactor();
 
         while (["*", "/", "%"].includes(tokens[position])) {
             const operator = tokens[position++];
-            const right = factor();
+            const right = parseFactor();
+
+            if ((operator === "/" || operator === "%") && right === 0) {
+                throw new Error("Cannot divide by zero");
+            }
 
             if (operator === "*") value *= right;
             if (operator === "/") value /= right;
@@ -388,20 +414,24 @@ function calculateExpression(expression) {
         return value;
     }
 
-    function factor() {
+    function parseFactor() {
         const token = tokens[position++];
 
-        if (token === "-") return -factor();
-        if (token === "+") return factor();
+        if (token === "-") return -parseFactor();
+        if (token === "+") return parseFactor();
 
         if (token === "(") {
-            const value = expression();
+            const value = parseExpression();
 
             if (tokens[position++] !== ")") {
                 throw new Error("Missing closing bracket");
             }
 
             return value;
+        }
+
+        if (token === undefined) {
+            throw new Error("Incomplete expression");
         }
 
         const value = Number(token);
@@ -414,7 +444,7 @@ function calculateExpression(expression) {
     }
 
     try {
-        const result = expression();
+        const result = parseExpression();
 
         if (position !== tokens.length || !Number.isFinite(result)) {
             return null;
