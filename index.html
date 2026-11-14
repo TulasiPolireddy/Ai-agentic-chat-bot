@@ -4,47 +4,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova AI Assistant</title>
+    <title>Nova - Personal AI Agent</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="app">
+
     <aside class="sidebar">
-        <h2>✦ NOVA</h2>
-        <button onclick="newChat()">+ New Chat</button>
-        <p class="menu-title">WORKSPACE</p>
-        <button class="menu active">✦ AI Assistant</button>
-        <button class="menu" onclick="showTasks()">☷ My Tasks</button>
-        <div class="status">🟢 Agent Active</div>
+        <div class="logo">✦ NOVA</div>
+        <p class="sub-logo">PERSONAL AI AGENT</p>
+
+        <button class="new-chat" onclick="newChat()">＋ New Conversation</button>
+
+        <p class="section-label">WORKSPACE</p>
+
+        <button class="nav active" onclick="newChat()">✦ AI Assistant</button>
+        <button class="nav" onclick="showTasks()">☷ My Tasks</button>
+        <button class="nav" onclick="showNotes()">▤ Saved Notes</button>
+        <button class="nav" onclick="showMemory()">◈ Memory</button>
+
+        <div class="sidebar-bottom">
+            <div class="agent-status">
+                <span class="dot"></span>
+                Agent Ready
+            </div>
+            <p>Nova v1.0</p>
+        </div>
     </aside>
 
     <main class="main">
-        <header>
-            <span>✦ Your Personal AI Agent</span>
-            <button onclick="newChat()">Clear Chat</button>
+
+        <header class="topbar">
+            <div>
+                <h3>AI Assistant</h3>
+                <p>Your intelligent personal workspace</p>
+            </div>
+            <div class="online">● Online</div>
         </header>
 
         <section class="chat-area" id="chatArea">
+
             <div class="welcome" id="welcome">
-                <h1>What can I help<br><span>you get done?</span></h1>
-                <p>I can understand your goals, create plans, perform tasks and remember information.</p>
+                <div class="welcome-icon">✦</div>
+                <h1>Let's get things<br><span>done together.</span></h1>
+                <p>
+                    Tell me your goal. I'll understand your request,
+                    create a plan and help you execute it.
+                </p>
 
                 <div class="suggestions">
-                    <button onclick="quickAsk('Plan my day with study and breaks')">📅 Plan my day</button>
-                    <button onclick="quickAsk('Calculate 18% of 2450')">🧮 Calculate something</button>
-                    <button onclick="quickAsk('Remember that my project deadline is Friday')">🧠 Remember something</button>
-                    <button onclick="quickAsk('Create a checklist for building a portfolio website')">☷ Create a checklist</button>
+                    <button onclick="quickAsk('Plan my day. I have 3 hours to study and need time for exercise.')">
+                        📅 <span><b>Plan my day</b><small>Create a personalised schedule</small></span>
+                    </button>
+
+                    <button onclick="quickAsk('Create a checklist for organising my birthday party.')">
+                        ☑ <span><b>Create a checklist</b><small>Organise any activity</small></span>
+                    </button>
+
+                    <button onclick="quickAsk('Remember that my project submission is Friday.')">
+                        🧠 <span><b>Remember something</b><small>Save important information</small></span>
+                    </button>
+
+                    <button onclick="quickAsk('Calculate 18% of 2450')">
+                        🧮 <span><b>Calculate</b><small>Perform calculations</small></span>
+                    </button>
                 </div>
             </div>
+
             <div id="messages"></div>
+
         </section>
 
-        <div class="input-area">
-            <textarea id="userInput" placeholder="Tell Nova what you want to accomplish..."></textarea>
-            <button onclick="sendMessage()">➤</button>
+        <div class="activity-panel" id="activityPanel">
+            <div class="activity-heading">
+                <span>✦ Agent activity</span>
+                <span id="activityStatus">Ready</span>
+            </div>
+            <div id="activityLog">Waiting for your request...</div>
         </div>
-        <p class="footer">Powered by Nova Agent System</p>
+
+        <div class="input-wrapper">
+            <textarea id="userInput"
+                placeholder="Tell Nova what you want to accomplish..."
+                rows="1"></textarea>
+            <button id="sendButton" onclick="sendMessage()">➤</button>
+        </div>
+
+        <p class="disclaimer">
+            Nova uses local JavaScript logic and browser storage.
+            It does not connect to an external AI model.
+        </p>
+
     </main>
 </div>
 
