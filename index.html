@@ -1,161 +1,98 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Milo AI - Smart Assistant</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Milo AI - Agentic Assistant</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span>✦</span> Milo AI</div>
+    <p class="side-label">WORKSPACE</p>
 
-    <aside class="sidebar">
-        <div class="logo">✳ Milo AI</div>
+    <button class="nav active" data-view="chat">💬 AI Assistant</button>
+    <button class="nav" data-view="tasks">✓ Task Manager</button>
+    <button class="nav" data-view="notes">▤ Saved Notes</button>
 
-        <button class="new-chat" onclick="newChat()">＋ New Chat</button>
+    <div class="side-bottom">
+      <div class="status-dot"></div>
+      <span>AI Agent Ready</span>
+    </div>
+  </aside>
 
-        <p class="side-heading">WORKSPACE</p>
-        <div class="nav active">💬 AI Assistant</div>
-        <div class="nav" onclick="showTasks()">☷ Task Manager</div>
-        <div class="nav" onclick="showNotes()">▤ Saved Notes</div>
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h2 id="pageTitle">AI Assistant</h2>
+        <p>Your personal AI agent</p>
+      </div>
+      <div class="online"><span></span> Online</div>
+    </header>
 
-        <p class="side-heading recent-heading">RECENT CONVERSATIONS</p>
-        <div id="history"></div>
-
-        <div class="profile">
-            <div class="profile-icon">M</div>
-            <div>
-                <b>Milo Assistant</b>
-                <small>Personal AI Agent</small>
+    <section id="chatView" class="view">
+      <div class="chat-layout">
+        <div class="chat-area">
+          <div id="messages" class="messages">
+            <div class="welcome">
+              <div class="welcome-icon">✦</div>
+              <h1>Hey! I'm Milo AI.</h1>
+              <p>Tell me what you want to achieve. I'll plan it, use my tools and work through it with you.</p>
+              <div class="suggestions">
+                <button class="suggestion">Create a 7-day JavaScript learning plan</button>
+                <button class="suggestion">Add a task to complete my portfolio</button>
+                <button class="suggestion">Explain how agentic AI works</button>
+                <button class="suggestion">Calculate 250 multiplied by 15</button>
+              </div>
             </div>
+          </div>
+
+          <form id="chatForm" class="composer">
+            <textarea id="userInput" rows="1"
+              placeholder="Message Milo AI..."></textarea>
+            <button id="sendBtn" type="submit">➤</button>
+          </form>
+          <p class="disclaimer">Milo can make mistakes. Check important information and actions.</p>
         </div>
-    </aside>
 
-    <main class="main">
+        <aside class="agent-panel">
+          <h3>Agent activity</h3>
+          <p class="panel-subtitle">What Milo is doing</p>
+          <div id="activity" class="activity">
+            <div class="activity-empty">Your agent's actions will appear here.</div>
+          </div>
 
-        <header class="topbar">
-            <div>
-                <h3>AI Assistant</h3>
-                <small>Your intelligent workspace</small>
-            </div>
-            <span class="online">● Online</span>
-        </header>
+          <div class="panel-divider"></div>
+          <h3>My workspace</h3>
+          <div class="workspace-stat">
+            <span>Tasks</span><strong id="taskCount">0</strong>
+          </div>
+          <div class="workspace-stat">
+            <span>Saved notes</span><strong id="noteCount">0</strong>
+          </div>
+          <p class="privacy-note">Your tasks and notes are stored in this browser.</p>
+        </aside>
+      </div>
+    </section>
 
-        <div class="workspace">
+    <section id="tasksView" class="view hidden">
+      <div class="content-page">
+        <h1>My Tasks</h1>
+        <p>Tasks created with your AI assistant.</p>
+        <div id="taskList" class="data-list"></div>
+      </div>
+    </section>
 
-            <section class="chat-section">
-
-                <div class="welcome" id="welcome">
-                    <div class="hero-icon">✳</div>
-                    <p class="eyebrow">MEET YOUR AI ASSISTANT</p>
-                    <h1>What would you like<br><span>me to accomplish?</span></h1>
-                    <p class="intro">Give me a goal. I'll create a plan, choose the right tools and work through it.</p>
-
-                    <div class="suggestions">
-                        <button onclick="usePrompt('Create a 7 day plan to learn JavaScript')">
-                            <span>🎯</span>
-                            <div><b>Create a plan</b><small>Break goals into steps</small></div>
-                        </button>
-
-                        <button onclick="usePrompt('Research the latest AI trends')">
-                            <span>🔎</span>
-                            <div><b>Research a topic</b><small>Explore and summarize</small></div>
-                        </button>
-
-                        <button onclick="usePrompt('Create a task to finish my portfolio')">
-                            <span>📋</span>
-                            <div><b>Manage tasks</b><small>Organize your work</small></div>
-                        </button>
-
-                        <button onclick="usePrompt('Calculate 250 multiplied by 35')">
-                            <span>🧮</span>
-                            <div><b>Solve a problem</b><small>Use smart tools</small></div>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="chat"></div>
-
-                <div class="composer-area">
-                    <div class="composer">
-                        <textarea id="messageInput" placeholder="Tell Milo what you want to do..." rows="1"></textarea>
-                        <div class="composer-footer">
-                            <span>✦ Agent mode enabled</span>
-                            <button onclick="sendMessage()" id="sendButton">↑</button>
-                        </div>
-                    </div>
-                    <p class="disclaimer">Milo AI is a demonstration project. Verify important information.</p>
-                </div>
-
-            </section>
-
-            <aside class="activity">
-
-                <div class="activity-header">
-                    <div>
-                        <small>LIVE WORKSPACE</small>
-                        <h3>Agent Activity</h3>
-                    </div>
-                    <span id="status">IDLE</span>
-                </div>
-
-                <div class="agent-info">
-                    <div class="agent-logo">✳</div>
-                    <div>
-                        <b>Milo Agent</b>
-                        <small>Smart task assistant</small>
-                    </div>
-                </div>
-
-                <h4 class="section-title">EXECUTION PROCESS</h4>
-
-                <div id="steps" class="steps">
-                    <div class="empty">
-                        <span>◌</span>
-                        <b>Waiting for a goal</b>
-                        <p>Your agent activity will appear here.</p>
-                    </div>
-                </div>
-
-                <h4 class="section-title">AVAILABLE TOOLS</h4>
-
-                <div class="tool">
-                    <span>🔎</span>
-                    <div><b>Research</b><small>Information assistant</small></div>
-                    <i>●</i>
-                </div>
-
-                <div class="tool">
-                    <span>🧮</span>
-                    <div><b>Calculator</b><small>Mathematical operations</small></div>
-                    <i>●</i>
-                </div>
-
-                <div class="tool">
-                    <span>📋</span>
-                    <div><b>Task Manager</b><small>Task organization</small></div>
-                    <i>●</i>
-                </div>
-
-                <div class="tool">
-                    <span>📝</span>
-                    <div><b>Notes</b><small>Save information</small></div>
-                    <i>●</i>
-                </div>
-
-                <div class="tool">
-                    <span>📅</span>
-                    <div><b>Date & Time</b><small>Current date and time</small></div>
-                    <i>●</i>
-                </div>
-
-                <div class="activity-footer">● All local demo tools ready</div>
-
-            </aside>
-        </div>
-    </main>
+    <section id="notesView" class="view hidden">
+      <div class="content-page">
+        <h1>Saved Notes</h1>
+        <p>Information Milo has saved for you.</p>
+        <div id="noteList" class="data-list"></div>
+      </div>
+    </section>
+  </main>
 </div>
 
 <script src="script.js"></script>
