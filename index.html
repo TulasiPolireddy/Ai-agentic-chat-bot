@@ -2,99 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Milo AI - Agentic Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Chat</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="app">
-  <aside class="sidebar">
-    <div class="brand"><span>✦</span> Milo AI</div>
-    <p class="side-label">WORKSPACE</p>
-
-    <button class="nav active" data-view="chat">💬 AI Assistant</button>
-    <button class="nav" data-view="tasks">✓ Task Manager</button>
-    <button class="nav" data-view="notes">▤ Saved Notes</button>
-
-    <div class="side-bottom">
-      <div class="status-dot"></div>
-      <span>AI Agent Ready</span>
-    </div>
-  </aside>
-
-  <main class="main">
+  <main class="app">
     <header class="topbar">
-      <div>
-        <h2 id="pageTitle">AI Assistant</h2>
-        <p>Your personal AI agent</p>
+      <h1>Agent Chat</h1>
+      <div class="key-box">
+        <input id="api-key" type="password" placeholder="Anthropic API key" autocomplete="off">
+        <button id="save-key" type="button">Save key</button>
       </div>
-      <div class="online"><span></span> Online</div>
     </header>
 
-    <section id="chatView" class="view">
-      <div class="chat-layout">
-        <div class="chat-area">
-          <div id="messages" class="messages">
-            <div class="welcome">
-              <div class="welcome-icon">✦</div>
-              <h1>Hey! I'm Milo AI.</h1>
-              <p>Tell me what you want to achieve. I'll plan it, use my tools and work through it with you.</p>
-              <div class="suggestions">
-                <button class="suggestion">Create a 7-day JavaScript learning plan</button>
-                <button class="suggestion">Add a task to complete my portfolio</button>
-                <button class="suggestion">Explain how agentic AI works</button>
-                <button class="suggestion">Calculate 250 multiplied by 15</button>
-              </div>
-            </div>
-          </div>
-
-          <form id="chatForm" class="composer">
-            <textarea id="userInput" rows="1"
-              placeholder="Message Milo AI..."></textarea>
-            <button id="sendBtn" type="submit">➤</button>
-          </form>
-          <p class="disclaimer">Milo can make mistakes. Check important information and actions.</p>
-        </div>
-
-        <aside class="agent-panel">
-          <h3>Agent activity</h3>
-          <p class="panel-subtitle">What Milo is doing</p>
-          <div id="activity" class="activity">
-            <div class="activity-empty">Your agent's actions will appear here.</div>
-          </div>
-
-          <div class="panel-divider"></div>
-          <h3>My workspace</h3>
-          <div class="workspace-stat">
-            <span>Tasks</span><strong id="taskCount">0</strong>
-          </div>
-          <div class="workspace-stat">
-            <span>Saved notes</span><strong id="noteCount">0</strong>
-          </div>
-          <p class="privacy-note">Your tasks and notes are stored in this browser.</p>
-        </aside>
+    <section id="messages" class="messages" aria-live="polite">
+      <div class="msg bot">
+        Hi, I can answer questions and use tools: a calculator, the current time,
+        and a notepad. Try: "What is 18% of 2450, and save the result as a note."
       </div>
     </section>
 
-    <section id="tasksView" class="view hidden">
-      <div class="content-page">
-        <h1>My Tasks</h1>
-        <p>Tasks created with your AI assistant.</p>
-        <div id="taskList" class="data-list"></div>
-      </div>
-    </section>
-
-    <section id="notesView" class="view hidden">
-      <div class="content-page">
-        <h1>Saved Notes</h1>
-        <p>Information Milo has saved for you.</p>
-        <div id="noteList" class="data-list"></div>
-      </div>
-    </section>
+    <form id="chat-form" class="composer">
+      <input id="user-input" type="text" placeholder="Ask or give a task..." autocomplete="off" required>
+      <button id="send-btn" type="submit">Send</button>
+    </form>
   </main>
-</div>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
